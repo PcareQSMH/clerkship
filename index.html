@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- Pastel Theme Variables --- */
+    :root {
+      --bg-color: #FDFBF7; /* Creamy White */
+      --primary: #FFB7B2;  /* Pastel Red/Pink */
+      --secondary: #A0E7E5; /* Pastel Mint */
+      --accent: #B4F8C8;    /* Pastel Green */
+      --text-main: #6E7C7C; /* Soft Gray */
+      --text-light: #FFFFFF;
+      --card-bg: #FFFFFF;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      --error: #ff8c94;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    /* Layout & Container */
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      border-top: 5px solid var(--secondary);
+    }
+
+    h1, h2, h3 { color: var(--text-main); text-align: center; }
+    h1 { color: #ff9aa2; }
+
+    /* Tabs */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .nav-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      background: #e2f0cb;
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .nav-btn.active {
+      background: var(--secondary);
+      color: white;
+      box-shadow: 0 4px 10px rgba(160, 231, 229, 0.4);
+    }
+
+    /* Form Elements */
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 500; }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 16px;
+      outline: none;
+      transition: 0.3s;
+      background: #fafafa;
+    }
+    input:focus, select:focus {
+      border-color: var(--secondary);
+      background: white;
+    }
+    
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    .btn-submit:hover { background: #ff9aa2; transform: translateY(-2px); }
+    .btn-submit:disabled { background: #ddd; cursor: not-allowed; }
+
+    /* Video Link Button Style */
+    .btn-video {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 15px;
+        background: #fff0f0;
+        color: #e17055;
+        border: 2px solid #ffcccc;
+        border-radius: 15px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+    .btn-video:hover {
+        background: #ffecec;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 118, 117, 0.2);
+    }
+
+    /* File Upload Styling */
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    input[type=file] {
+      font-size: 14px;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      text-align: center;
+    }
+    .alert-danger { background-color: #ffe5e5; color: #d63031; border: 1px solid #ffcccc; }
+    .alert-success { background-color: #e3fcef; color: #00b894; border: 1px solid #b8eadd; }
+
+    /* Dashboard Table */
+    .table-responsive { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      min-width: 600px; /* Force scroll on mobile */
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th { background-color: #f0f0f0; color: #555; font-weight: 600; }
+    
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .status-pending { background: #ffeaa7; color: #e17055; }
+    .status-done { background: var(--accent); color: #006266; }
+
+    /* Hidden Sections */
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.5s; }
+
+    /* Loading Overlay */
+    #loading {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.9);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 999; display: none; flex-direction: column;
+    }
+    .spinner {
+      border: 5px solid #f3f3f3; border-top: 5px solid var(--secondary);
+      border-radius: 50%; width: 50px; height: 50px;
+      animation: spin 1s linear infinite; margin-bottom: 10px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div style="color: var(--text-main); font-weight: bold;">กำลังประมวลผล...</div>
+  </div>
+
+  <div class="container">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h2 style="margin:0;">ฝ่ายยาและเวชภัณฑ์</h2>
+      <h3 style="margin:5px 0; font-weight: 400;">โรงพยาบาลสมเด็จพระบรมราชเทวี ณ ศรีราชา</h3>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('report')">รายงานตัวนิสิต</button>
+      <button class="nav-btn" onclick="switchTab('dashboard')">สำหรับเภสัชกร</button>
+    </div>
+
+    <!-- ================== PART 1: REPORTING ================== -->
+    <div id="tab-report" class="section active">
+      
+      <!-- Step 1: Login -->
+      <div id="step-login" class="card">
+        <h3>🔐 เข้าสู่ระบบ</h3>
+        <p style="text-align: center; font-size: 14px; color: #888;">กรอกเลขบัตรประชาชน 13 หลักเพื่อเริ่มรายงานตัว</p>
+        <div class="form-group">
+          <input type="number" id="login-id" placeholder="เลขบัตรประชาชน 13 หลัก" oninput="if(this.value.length>13) this.value=this.value.slice(0,13)">
+        </div>
+        <button class="btn-submit" onclick="handleLogin()">ตรวจสอบ</button>
+        <div id="login-error" class="alert alert-danger" style="margin-top: 10px;">กรุณากรอกเลขบัตรให้ครบ 13 หลัก</div>
+      </div>
+
+      <!-- Step 2: Form -->
+      <div id="step-form" class="card section">
+        <h3>📝 ข้อมูลการรายงานตัว</h3>
+        
+        <!-- Cascading Dropdowns -->
+        <div class="form-group">
+          <label>ปี พ.ศ.</label>
+          <select id="sel-year" onchange="filterData('year')"><option value="">เลือกปี พ.ศ.</option></select>
+        </div>
+        <div class="form-group">
+          <label>ชั้นปี</label>
+          <select id="sel-level" onchange="filterData('level')" disabled><option value="">เลือกชั้นปี</option></select>
+        </div>
+        <div class="form-group">
+          <label>มหาวิทยาลัย</label>
+          <select id="sel-uni" onchange="filterData('uni')" disabled><option value="">เลือกมหาวิทยาลัย</option></select>
+        </div>
+        <div class="form-group">
+          <label>สาขา</label>
+          <select id="sel-major" onchange="filterData('major')" disabled><option value="">เลือกสาขา</option></select>
+        </div>
+        <div class="form-group">
+          <label>ชื่อ-นามสกุล</label>
+          <select id="sel-name" onchange="displayPeriod()" disabled><option value="">เลือกรายชื่อ</option></select>
+        </div>
+
+        <!-- Auto Display Period -->
+        <div class="form-group" style="background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px dashed #4ade80;">
+          <label style="color: #166534;">📅 ช่วงเวลาฝึกงาน:</label>
+          <div id="display-period" style="font-weight: bold; color: #15803d;">-</div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <!-- Health Data -->
+        <h4>🏥 ข้อมูลสุขภาพ (Chest X-ray & Vaccine)</h4>
+        <div class="alert alert-danger" id="health-error">
+          ⛔ ไม่รับรายงานตัว: ผลการตรวจ Chest X-ray หรือ วัคซีนไข้หวัดใหญ่ ต้องไม่เกิน 12 เดือนก่อนวันเริ่มฝึกงาน
+        </div>
+
+        <div class="form-group">
+          <label>วันที่ตรวจ Chest X-ray (ล่าสุด)</label>
+          <input type="date" id="date-xray">
+        </div>
+        <div class="form-group">
+          <label>อัปโหลดรูปหลักฐาน X-ray</label>
+          <input type="file" id="file-xray" accept="image/*,.pdf">
+        </div>
+
+        <div class="form-group">
+          <label>วันที่ฉีดวัคซีนไข้หวัดใหญ่ (ล่าสุด)</label>
+          <input type="date" id="date-vac">
+        </div>
+        <div class="form-group">
+          <label>อัปโหลดรูปหลักฐานวัคซีน</label>
+          <input type="file" id="file-vac" accept="image/*,.pdf">
+        </div>
+
+        <button class="btn-submit" onclick="submitData()">ยืนยันการรายงานตัว</button>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div id="step-success" class="card section" style="text-align: center;">
+        <div style="font-size: 50px;">🎉</div>
+        <h2 style="color: var(--secondary);">รับรายงานตัวเรียบร้อย</h2>
+        <p>ยินดีต้อนรับสู่งานเภสัชกรรม โรงพยาบาลสมเด็จฯ ณ ศรีราชา</p>
+        
+        <div style="text-align: left; background: #fafafa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <strong>📌 ข้อแนะนำวันแรก:</strong>
+          <ul>
+            <li>การเตรียมความรู้ชั้นปีที่ 4 อ่านรายละเอียดการบ้านในเล่มฝึกปฏิบัติงาน</li>
+            <li>การเตรียมความรู้ชั้นปีที่ 6 อ่านความรู้ในรายวิชาทีฝึกสาขาเน้น</li>
+            <li>แต่งกายชุดนิสิตให้เรียบร้อย ใส่รองเท้าหุ้มส้นสีสุภาพ</li>
+            <li>วันแรกของการฝึกงาน นัดพบที่อาคารศรีสวรินทิรานุสรณ์ ๑๕๐ ปี</li>
+            <li>ชั้น 9 ห้องประชุมฝ่ายยาและเวชภัณฑ์ เวลา 8.00 น.</li>
+            <li>เวลาฝึกงาน 8.00 ถึง 16.00 น. โดยเซ็นชื่อที่หน้าห้องบริบาลเช้า-เย็น</li>
+            <li>การลาฝึกงาน ให้นิสิตแจ้งเภสัชกรที่นิสิตฝึกในหน่วยงานและเขียนใบลาทุกครั้ง</li>
+            <li>ห้ามไลฟ์สด ถ่ายภาพ ถ่ายวิดีโอโดยไม่ได้รับการอนุญาตจากเภสัชกร</li>
+            <li>สถานที่จอดรถ สามารถจอดรอบโรงพยาบาล หรือ</li>
+            <li>ติดต่อชั้น G เพื่อทำบัตรจอดรถ มีค่าจอดเดือนละ 1000 บาท</li>
+          </ul>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <p>🎥 วิดีโอแนะนำโรงพยาบาล</p>
+          <!-- Changed from Iframe to Link Button -->
+          <a href="https://youtu.be/T38iDeeHkrg" target="_blank" class="btn-video">
+            ▶️ คลิกเพื่อเปิดวิดีโอแนะนำ (YouTube)
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================== PART 2: DASHBOARD ================== -->
+    <div id="tab-dashboard" class="section">
+      <div class="card">
+        <h3>👩‍⚕️ Dashboard รายชื่อนิสิต</h3>
+        
+        <div class="form-group">
+          <label>กรองข้อมูลตาม:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <select id="dash-year" onchange="renderDashboard()">
+              <option value="all">ทุกปี พ.ศ.</option>
+            </select>
+            <select id="dash-level" onchange="renderDashboard()">
+              <option value="all">ทุกชั้นปี</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="dash-table">
+            <thead>
+              <tr>
+                <th>ชื่อ-นามสกุล</th>
+                <th>มหาวิทยาลัย</th>
+                <th>ช่วงเวลา</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS will populate rows here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Global Variables ---
+    let allData = []; // [Year, Level, Uni, Major, Name, Period]
+    let submittedNames = []; // List of names/ids who already submitted
+    let filteredData = []; 
+    let currentUserID = "";
+
+    // --- Init ---
+    window.onload = function() {
+      document.getElementById('loading').style.display = 'flex';
+      google.script.run.withSuccessHandler(onDataLoaded).getSheetData();
+    };
+
+    function onDataLoaded(res) {
+      allData = res.masterData;
+      submittedNames = res.submittedData;
+      document.getElementById('loading').style.display = 'none';
+      
+      // Init Dashboard filters
+      initDashboardFilters();
+      renderDashboard(); // Initial render
+    }
+
+    // --- Tab Switching ---
+    function switchTab(tabName) {
+      document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      if(tabName === 'report') {
+        document.getElementById('tab-report').classList.add('active');
+        document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
+        // Reset to Login if needed, or keep state
+      } else {
+        document.getElementById('tab-dashboard').classList.add('active');
+        document.querySelector('.nav-btn:nth-child(2)').classList.add('active');
+        renderDashboard(); // Refresh dash
+      }
+    }
+
+    // --- Login Logic ---
+    function handleLogin() {
+      const id = document.getElementById('login-id').value;
+      if(id.length !== 13) {
+        document.getElementById('login-error').style.display = 'block';
+        return;
+      }
+      currentUserID = id;
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('step-login').style.display = 'none';
+      document.getElementById('step-form').classList.add('active');
+      
+      // Load initial dropdown (Year)
+      populateDropdown('sel-year', 0, allData);
+    }
+
+    // --- Cascading Dropdown Logic ---
+    function populateDropdown(elementId, colIndex, sourceData) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = '<option value="">กรุณาเลือก</option>';
+      select.disabled = false;
+
+      // Get unique values for this column from sourceData
+      const uniqueValues = [...new Set(sourceData.map(row => row[colIndex]))].sort();
+      
+      uniqueValues.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.text = val;
+        select.appendChild(opt);
+      });
+    }
+
+    function filterData(changedLevel) {
+      // Logic: Filter `allData` based on current selections
+      const year = document.getElementById('sel-year').value;
+      const level = document.getElementById('sel-level').value;
+      const uni = document.getElementById('sel-uni').value;
+      const major = document.getElementById('sel-major').value;
+
+      let currentFiltered = allData;
+
+      if(year) currentFiltered = currentFiltered.filter(r => r[0] == year);
+      if(changedLevel === 'year') {
+        resetSelects(['sel-level', 'sel-uni', 'sel-major', 'sel-name']);
+        if(year) populateDropdown('sel-level', 1, currentFiltered);
+        return;
+      }
+
+      if(level) currentFiltered = currentFiltered.filter(r => r[1] == level);
+      if(changedLevel === 'level') {
+        resetSelects(['sel-uni', 'sel-major', 'sel-name']);
+        if(level) populateDropdown('sel-uni', 2, currentFiltered);
+        return;
+      }
+
+      if(uni) currentFiltered = currentFiltered.filter(r => r[2] == uni);
+      if(changedLevel === 'uni') {
+        resetSelects(['sel-major', 'sel-name']);
+        if(uni) populateDropdown('sel-major', 3, currentFiltered);
+        return;
+      }
+
+      if(major) currentFiltered = currentFiltered.filter(r => r[3] == major);
+      if(changedLevel === 'major') {
+        resetSelects(['sel-name']);
+        if(major) populateDropdown('sel-name', 4, currentFiltered);
+        return;
+      }
+    }
+
+    function resetSelects(ids) {
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        el.innerHTML = '<option value="">รอการเลือก...</option>';
+        el.disabled = true;
+      });
+      document.getElementById('display-period').innerText = '-';
+    }
+
+    function displayPeriod() {
+      const name = document.getElementById('sel-name').value;
+      const year = document.getElementById('sel-year').value;
+      // Find row
+      const row = allData.find(r => r[4] === name && r[0] == year);
+      if(row) {
+        document.getElementById('display-period').innerText = row[5]; // Period is at index 5
+      }
+    }
+
+    // --- Validation & Submission ---
+    async function submitData() {
+      // 1. Basic Validation
+      const requiredIds = ['sel-name', 'date-xray', 'date-vac', 'file-xray', 'file-vac'];
+      for(let id of requiredIds) {
+        const el = document.getElementById(id);
+        if(!el.value) {
+          alert('กรุณากรอกข้อมูลและอัปโหลดไฟล์ให้ครบถ้วน');
+          el.focus();
+          return;
+        }
+      }
+
+      // 2. Date Validation (12 Months)
+      const xrayDate = new Date(document.getElementById('date-xray').value);
+      const vacDate = new Date(document.getElementById('date-vac').value);
+      const today = new Date();
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(today.getFullYear() - 1);
+
+      if(xrayDate < oneYearAgo || vacDate < oneYearAgo) {
+        document.getElementById('health-error').style.display = 'block';
+        window.scrollTo(0, document.getElementById('health-error').offsetTop);
+        return;
+      } else {
+        document.getElementById('health-error').style.display = 'none';
+      }
+
+      // 3. Prepare File Upload
+      document.getElementById('loading').style.display = 'flex';
+      
+      try {
+        const xrayFile = await getFileBase64(document.getElementById('file-xray').files[0]);
+        const vacFile = await getFileBase64(document.getElementById('file-vac').files[0]);
+
+        // Get Selected Data info
+        const year = document.getElementById('sel-year').value;
+        const level = document.getElementById('sel-level').value;
+        const uni = document.getElementById('sel-uni').value;
+        const major = document.getElementById('sel-major').value;
+        const name = document.getElementById('sel-name').value;
+        const period = document.getElementById('display-period').innerText;
+
+        const formData = {
+          nationalId: currentUserID,
+          year: year,
+          level: level,
+          uni: uni,
+          major: major,
+          name: name,
+          period: period,
+          xrayDate: document.getElementById('date-xray').value,
+          xrayFile: xrayFile,
+          vaccineDate: document.getElementById('date-vac').value,
+          vaccineFile: vacFile
+        };
+
+        google.script.run.withSuccessHandler(res => {
+          document.getElementById('loading').style.display = 'none';
+          if(res.success) {
+            document.getElementById('step-form').style.display = 'none';
+            document.getElementById('step-success').classList.add('active');
+          } else {
+            alert('เกิดข้อผิดพลาด: ' + res.message);
+          }
+        }).submitForm(formData);
+
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        alert('Error processing files: ' + e);
+      }
+    }
+
+    function getFileBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // --- Dashboard Logic ---
+    function initDashboardFilters() {
+      // Populate Year and Level filters based on available data
+      const years = [...new Set(allData.map(r => r[0]))].sort();
+      const levels = [...new Set(allData.map(r => r[1]))].sort();
+
+      const yearSel = document.getElementById('dash-year');
+      years.forEach(y => yearSel.innerHTML += `<option value="${y}">${y}</option>`);
+
+      const levelSel = document.getElementById('dash-level');
+      levels.forEach(l => levelSel.innerHTML += `<option value="${l}">${l}</option>`);
+    }
+
+    function renderDashboard() {
+      const yearFilter = document.getElementById('dash-year').value;
+      const levelFilter = document.getElementById('dash-level').value;
+      const tbody = document.querySelector('#dash-table tbody');
+      tbody.innerHTML = '';
+
+      // Filter Data
+      let list = allData;
+      if(yearFilter !== 'all') list = list.filter(r => r[0] == yearFilter);
+      if(levelFilter !== 'all') list = list.filter(r => r[1] == levelFilter);
+
+      list.forEach(row => {
+        // row indexes: 0:Year, 1:Level, 2:Uni, 3:Major, 4:Name, 5:Period
+        const name = row[4];
+        
+        // Check submission status
+        // Compare Name (row[4]) with submittedNames list
+        // Note: Ideally compare by ID, but master data sheet usually doesn't have ID public.
+        // Assuming Name is unique or combining checks.
+        const isSubmitted = submittedNames.some(sub => sub.name === name);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:bold;">${name}</div>
+            <div style="font-size:12px; color:#888;">${row[3]} (ปี ${row[1]})</div>
+          </td>
+          <td>${row[2]}</td>
+          <td>${row[5]}</td>
+          <td>
+            ${isSubmitted 
+              ? '<span class="status-badge status-done">✔ รายงานตัวแล้ว</span>' 
+              : '<span class="status-badge status-pending">รอรายงานตัว</span>'}
+          </td>
+        `;
+        // Highlight row if submitted
+        if(isSubmitted) tr.style.backgroundColor = "#f0fdf4";
+        
+        tbody.appendChild(tr);
+      });
+    }
+
+  </script>
+</body>
+</html>
