@@ -103,7 +103,7 @@
       margin-top: 10px;
     }
     .btn-submit:hover { background: #ff9aa2; transform: translateY(-2px); }
-    .btn-submit:disabled { background: #ddd; cursor: not-allowed; }
+    .btn-submit:disabled { background: #ddd; cursor: wait; color: #888; }
 
     /* Video Link Button Style */
     .btn-video {
@@ -177,12 +177,13 @@
     .section { display: none; }
     .section.active { display: block; animation: fadeIn 0.5s; }
 
-    /* Loading Overlay */
+    /* Loading Overlay (Modified to be hidden by default) */
     #loading {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(255,255,255,0.9);
-      display: flex; justify-content: center; align-items: center;
-      z-index: 999; display: none; flex-direction: column;
+      display: none; /* Changed from flex to none */
+      justify-content: center; align-items: center;
+      z-index: 999; flex-direction: column;
     }
     .spinner {
       border: 5px solid #f3f3f3; border-top: 5px solid var(--secondary);
@@ -197,7 +198,7 @@
 </head>
 <body>
 
-  <!-- Loading Screen -->
+  <!-- Loading Screen (For heavy tasks) -->
   <div id="loading">
     <div class="spinner"></div>
     <div style="color: var(--text-main); font-weight: bold;">กำลังประมวลผล...</div>
@@ -225,7 +226,12 @@
         <div class="form-group">
           <input type="number" id="login-id" placeholder="เลขบัตรประชาชน 13 หลัก" oninput="if(this.value.length>13) this.value=this.value.slice(0,13)">
         </div>
-        <button class="btn-submit" onclick="handleLogin()">ตรวจสอบ</button>
+        
+        <!-- Updated Button: Disabled by default -->
+        <button id="btn-login" class="btn-submit" onclick="handleLogin()" disabled>
+          ⏳ กำลังโหลดฐานข้อมูล...
+        </button>
+        
         <div id="login-error" class="alert alert-danger" style="margin-top: 10px;">กรุณากรอกเลขบัตรให้ครบ 13 หลัก</div>
       </div>
 
@@ -270,7 +276,7 @@
         </div>
 
         <div class="form-group">
-          <label>วันที่ตรวจ Chest X-ray (ล่าสุด)</label>
+          <label>วันที่ตรวจ Chest X-ray (ล่าสุด) ไม่เกิน 12 เดือนนับจากวันฝึกงาน</label>
           <input type="date" id="date-xray">
         </div>
         <div class="form-group">
@@ -279,7 +285,7 @@
         </div>
 
         <div class="form-group">
-          <label>วันที่ฉีดวัคซีนไข้หวัดใหญ่ (ล่าสุด)</label>
+          <label>วันที่ฉีดวัคซีนไข้หวัดใหญ่ (ล่าสุด) ไม่เกิน 12 เดือนนับจากวันฝึกงาน</label>
           <input type="date" id="date-vac">
         </div>
         <div class="form-group">
@@ -294,29 +300,28 @@
       <div id="step-success" class="card section" style="text-align: center;">
         <div style="font-size: 50px;">🎉</div>
         <h2 style="color: var(--secondary);">รับรายงานตัวเรียบร้อย</h2>
-        <p>ยินดีต้อนรับสู่งานเภสัชกรรม โรงพยาบาลสมเด็จฯ ณ ศรีราชา</p>
+        <p>ยินดีต้อนรับสู่ฝ่ายยาและเวชภัณฑ์</p>
+        <p>โรงพยาบาลสมเด็จพระบรมราชเทวี ณ ศรีราชา</p>
         
         <div style="text-align: left; background: #fafafa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-          <strong>📌 ข้อแนะนำวันแรก:</strong>
+          <strong>📌 คำแนะนำการฝึกงาน:</strong>
           <ul>
-            <li>การเตรียมความรู้ชั้นปีที่ 4 อ่านรายละเอียดการบ้านในเล่มฝึกปฏิบัติงาน</li>
-            <li>การเตรียมความรู้ชั้นปีที่ 6 อ่านความรู้ในรายวิชาทีฝึกสาขาเน้น</li>
-            <li>แต่งกายชุดนิสิตให้เรียบร้อย ใส่รองเท้าหุ้มส้นสีสุภาพ</li>
-            <li>วันแรกของการฝึกงาน นัดพบที่อาคารศรีสวรินทิรานุสรณ์ ๑๕๐ ปี</li>
-            <li>ชั้น 9 ห้องประชุมฝ่ายยาและเวชภัณฑ์ เวลา 8.00 น.</li>
-            <li>เวลาฝึกงาน 8.00 ถึง 16.00 น. โดยเซ็นชื่อที่หน้าห้องบริบาลเช้า-เย็น</li>
+            <li>ชั้นปีที่ 4 ให้อ่านรายละเอียดการบ้านในเล่มฝึกปฏิบัติงาน</li>
+            <li>ชั้นปีที่ 6 ให้อ่านความรู้ในรายวิชาที่ฝึก</li>
+            <li>แต่งกายชุดนิสิตให้เรียบร้อย</li>
+            <li>สวมรองเท้าหุ้มส้นสีสุภาพ</li>
+            <li>วันแรกนัดพบ 8:00 น.ที่ชั้น 9 ห้องประชุมฝ่ายยาและเวชภัณฑ์ อาคารศรีสวรินทิรานุสรณ์ ๑๕๐ ปี</li>
+            <li>เวลาฝึกงาน 8.00 ถึง 16.00 น. โดยเซ็นชื่อเช้า-เย็นที่ชั้น 9</li>
             <li>การลาฝึกงาน ให้นิสิตแจ้งเภสัชกรที่นิสิตฝึกในหน่วยงานและเขียนใบลาทุกครั้ง</li>
             <li>ห้ามไลฟ์สด ถ่ายภาพ ถ่ายวิดีโอโดยไม่ได้รับการอนุญาตจากเภสัชกร</li>
-            <li>สถานที่จอดรถ สามารถจอดรอบโรงพยาบาล หรือ</li>
-            <li>ติดต่อชั้น G เพื่อทำบัตรจอดรถ มีค่าจอดเดือนละ 1000 บาท</li>
+            <li>จอดรถฟรีได้รอบโรงพยาบาล หรือติดต่อชั้น G เพื่อทำบัตรจอดรถเดือนละ 1000 บาท</li>
           </ul>
         </div>
 
         <div style="margin-top: 20px;">
-          <p>🎥 วิดีโอแนะนำโรงพยาบาล</p>
-          <!-- Changed from Iframe to Link Button -->
+          <p>🎥 วิดีโอแนะนำโรงพยาบาล ให้น้องๆศึกษาคลิปวิดิโอก่อนมาฝึกงานทุกคนค่ะ</p>
           <a href="https://youtu.be/T38iDeeHkrg" target="_blank" class="btn-video">
-            ▶️ คลิกเพื่อเปิดวิดีโอแนะนำ (YouTube)
+            ▶️ คลิกเพื่อเปิดวิดีโอแนะนำ อย่าลืมดูนะคะ ^_^ (YouTube)
           </a>
         </div>
       </div>
@@ -366,21 +371,30 @@
     let submittedNames = []; // List of names/ids who already submitted
     let filteredData = []; 
     let currentUserID = "";
+    let isDataReady = false; // Flag to check status
 
     // --- Init ---
     window.onload = function() {
-      document.getElementById('loading').style.display = 'flex';
+      // Don't block UI here. Just start fetching in background.
+      console.log("Fetching data...");
       google.script.run.withSuccessHandler(onDataLoaded).getSheetData();
     };
 
     function onDataLoaded(res) {
+      console.log("Data loaded.");
       allData = res.masterData;
       submittedNames = res.submittedData;
-      document.getElementById('loading').style.display = 'none';
+      isDataReady = true;
+
+      // Update Login Button
+      const btn = document.getElementById('btn-login');
+      btn.disabled = false;
+      btn.innerHTML = "ตรวจสอบ";
+      btn.style.backgroundColor = ""; // Reset to CSS default
       
-      // Init Dashboard filters
+      // Init Dashboard filters (in background)
       initDashboardFilters();
-      renderDashboard(); // Initial render
+      renderDashboard(); 
     }
 
     // --- Tab Switching ---
@@ -391,16 +405,20 @@
       if(tabName === 'report') {
         document.getElementById('tab-report').classList.add('active');
         document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
-        // Reset to Login if needed, or keep state
       } else {
         document.getElementById('tab-dashboard').classList.add('active');
         document.querySelector('.nav-btn:nth-child(2)').classList.add('active');
-        renderDashboard(); // Refresh dash
+        renderDashboard(); 
       }
     }
 
     // --- Login Logic ---
     function handleLogin() {
+      if(!isDataReady) {
+        alert("กรุณารอสักครู่ กำลังโหลดฐานข้อมูล...");
+        return;
+      }
+
       const id = document.getElementById('login-id').value;
       if(id.length !== 13) {
         document.getElementById('login-error').style.display = 'block';
@@ -518,7 +536,7 @@
       }
 
       // 3. Prepare File Upload
-      document.getElementById('loading').style.display = 'flex';
+      document.getElementById('loading').style.display = 'flex'; // Show loading only when submitting
       
       try {
         const xrayFile = await getFileBase64(document.getElementById('file-xray').files[0]);
@@ -578,9 +596,11 @@
       const levels = [...new Set(allData.map(r => r[1]))].sort();
 
       const yearSel = document.getElementById('dash-year');
+      yearSel.innerHTML = '<option value="all">ทุกปี พ.ศ.</option>';
       years.forEach(y => yearSel.innerHTML += `<option value="${y}">${y}</option>`);
 
       const levelSel = document.getElementById('dash-level');
+      levelSel.innerHTML = '<option value="all">ทุกชั้นปี</option>';
       levels.forEach(l => levelSel.innerHTML += `<option value="${l}">${l}</option>`);
     }
 
@@ -600,9 +620,6 @@
         const name = row[4];
         
         // Check submission status
-        // Compare Name (row[4]) with submittedNames list
-        // Note: Ideally compare by ID, but master data sheet usually doesn't have ID public.
-        // Assuming Name is unique or combining checks.
         const isSubmitted = submittedNames.some(sub => sub.name === name);
 
         const tr = document.createElement('tr');
@@ -619,7 +636,6 @@
               : '<span class="status-badge status-pending">รอรายงานตัว</span>'}
           </td>
         `;
-        // Highlight row if submitted
         if(isSubmitted) tr.style.backgroundColor = "#f0fdf4";
         
         tbody.appendChild(tr);
